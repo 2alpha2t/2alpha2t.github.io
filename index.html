@@ -5,80 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>2alpha2t</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #1a1a1a;
-      color: #f0f0f0;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-
-    header {
-      background: #2c2c2c;
-      padding: 2rem 1rem;
-    }
-
-    .logo {
-      width: 128px;
-      height: 128px;
-      margin-bottom: 1rem;
-    }
-
-    header h1 {
-      font-size: 2.5rem;
-      color: #ff4d4d;
-      margin: 0;
-    }
-
-    main {
-      padding: 2rem 1rem;
-    }
-
-    #ip {
-      font-weight: bold;
-      font-size: 1.2rem;
-      color: #00ff00;
-    }
-
-    section p {
-      margin: 0.5rem 0;
-    }
-
-    button {
-      padding: 0.3rem 0.7rem;
-      border: none;
-      border-radius: 0.3rem;
-      cursor: pointer;
-      background: #ff4d4d;
-      color: #fff;
-      font-size: 0.9rem;
-      margin-left: 0.5rem;
-    }
-
-    button:hover {
-      background: #ff1a1a;
-    }
-
-    footer {
-      background: #2c2c2c;
-      padding: 1rem;
-      font-size: 0.9rem;
-    }
-
-    a {
-      color: #00ffff;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
+    body { font-family: Arial, sans-serif; background: #1a1a1a; color: #f0f0f0; text-align: center; margin:0; padding:0; }
+    header { background: #2c2c2c; padding: 2rem 1rem; }
+    .logo { width:128px; height:128px; margin-bottom:1rem; }
+    header h1 { font-size: 2.5rem; color: #ff4d4d; margin:0; }
+    main { padding:2rem 1rem; max-width:700px; margin:auto; }
+    #ip { font-weight:bold; font-size:1.2rem; color:#00ff00; }
+    #status { font-weight:bold; font-size:1.1rem; color:#00ffff; }
+    #players { font-weight:bold; font-size:1.1rem; color:#00ffff; }
+    button { padding:0.3rem 0.7rem; border:none; border-radius:0.3rem; cursor:pointer;
+             background:#ff4d4d; color:#fff; font-size:0.9rem; margin-left:0.5rem; }
+    button:hover { background:#ff1a1a; }
+    footer { background:#2c2c2c; padding:1rem; font-size:0.9rem; }
+    a { color:#00ffff; text-decoration:none; }
+    a:hover { text-decoration:underline; }
   </style>
 </head>
 <body>
   <header>
-    <img src="https://api.betacraft.uk/v2/server_icon?socket=2alpha2t.ddns.net:25565" alt="2alpha2t Logo" class="logo">
+    <img src="https://api.betacraft.uk/v2/server_icon?socket=2alpha2t.ddns.net:25565"
+         alt="2alpha2t Logo" class="logo">
     <h1>2alpha2t</h1>
   </header>
 
@@ -86,7 +32,9 @@
     <section id="info">
       <p>established: 2025 nov 24th</p>
       <p>server IP: <span id="ip">2alpha2t.ddns.net:25565</span> <button onclick="copyIP()">Copy</button></p>
-      <p>2alpha2t is an a1.2.6 mc server created by aHacker on nov 24th, 2025. this website is maintained by Intiha, with a community hub on discord for announcements and updates.</p>
+      <p>status: <span id="status">loading...</span></p>
+      <p>players: <span id="players">—</span></p>
+      <p>2alpha2t is an a1.2.6 MC server created by aHacker on nov 24th, 2025. this website is maintained by Intiha, with a community hub on Discord for updates.</p>
       <p>join our discord!: <a href="https://discord.gg/AVgysSBPhc" target="_blank">discord.gg/AVgysSBPhc</a></p>
     </section>
   </main>
@@ -100,8 +48,33 @@
     function copyIP() {
       const ip = document.getElementById('ip').innerText;
       navigator.clipboard.writeText(ip);
+      // you can replace alert with a nicer toast
       alert('Server IP copied: ' + ip);
     }
+
+    async function updateStatus() {
+      try {
+        const resp = await fetch('https://api.mcstatus.io/v2/status/java/2alpha2t.ddns.net:25565');
+        if (!resp.ok) throw new Error('HTTP error ' + resp.status);
+        const data = await resp.json();
+
+        document.getElementById('status').textContent = data.online ? 'ONLINE' : 'OFFLINE';
+
+        if (data.online && data.players) {
+          document.getElementById('players').textContent =
+            data.players.online + ' / ' + data.players.max;
+        } else {
+          document.getElementById('players').textContent = '—';
+        }
+      } catch (e) {
+        console.error('Status fetch error:', e);
+        document.getElementById('status').textContent = 'ERROR';
+        document.getElementById('players').textContent = '—';
+      }
+    }
+
+    updateStatus();
+    setInterval(updateStatus, 30 * 1000); // refresh every 30 sec
   </script>
 </body>
 </html>
