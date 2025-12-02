@@ -32,8 +32,6 @@
     <section id="info">
       <p>established: 2025 nov 24th</p>
       <p>server IP: <span id="ip">2alpha2t.ddns.net:25565</span> <button onclick="copyIP()">Copy</button></p>
-      <p>status: <span id="status">loading...</span></p>
-      <p>players: <span id="players">—</span></p>
       <p>2alpha2t is an a1.2.6 MC server created by aHacker on nov 24th, 2025. this website is maintained by Intiha, with a community hub on Discord for updates.</p>
       <p>join our discord!: <a href="https://discord.gg/AVgysSBPhc" target="_blank">discord.gg/AVgysSBPhc</a></p>
     </section>
@@ -51,30 +49,6 @@
       // you can replace alert with a nicer toast
       alert('Server IP copied: ' + ip);
     }
-
-    async function updateStatus() {
-      try {
-        const resp = await fetch('https://api.mcstatus.io/v2/status/java/2alpha2t.ddns.net:25565');
-        if (!resp.ok) throw new Error('HTTP error ' + resp.status);
-        const data = await resp.json();
-
-        document.getElementById('status').textContent = data.online ? 'ONLINE' : 'OFFLINE';
-
-        if (data.online && data.players) {
-          document.getElementById('players').textContent =
-            data.players.online + ' / ' + data.players.max;
-        } else {
-          document.getElementById('players').textContent = '—';
-        }
-      } catch (e) {
-        console.error('Status fetch error:', e);
-        document.getElementById('status').textContent = 'ERROR';
-        document.getElementById('players').textContent = '—';
-      }
-    }
-
-    updateStatus();
-    setInterval(updateStatus, 30 * 1000); // refresh every 30 sec
   </script>
 </body>
 </html>
